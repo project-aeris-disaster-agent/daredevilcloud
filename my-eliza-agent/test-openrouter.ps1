@@ -1,7 +1,26 @@
 # Test OpenRouter API Key
-$apiKey = "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"
+# Reads API key from .env file
+
+# Load API key from .env
+$envPath = Join-Path $PSScriptRoot ".env"
+$apiKey = $null
+
+if (Test-Path $envPath) {
+    Get-Content $envPath | ForEach-Object {
+        if ($_ -match "^OPENROUTER_API_KEY=(.+)$") {
+            $apiKey = $matches[1].Trim()
+        }
+    }
+}
+
+if (-not $apiKey) {
+    Write-Host "[ERROR] OPENROUTER_API_KEY not found in .env file" -ForegroundColor Red
+    Write-Host "Please add it to: $envPath" -ForegroundColor Yellow
+    exit 1
+}
 
 Write-Host "Testing OpenRouter API..." -ForegroundColor Cyan
+Write-Host "Using key: $($apiKey.Substring(0, 15))...***" -ForegroundColor Gray
 Write-Host ""
 
 # Test 1: Simple completion request
@@ -36,13 +55,27 @@ try {
     
 } catch {
     Write-Host "[ERROR] API Request failed" -ForegroundColor Red
-    Write-Host "Status: $($_.Exception.Response.StatusCode.value__)" -ForegroundColor Yellow
+    $statusCode = $_.Exception.Response.StatusCode.value__
+    Write-Host "Status: $statusCode" -ForegroundColor Yellow
     Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Yellow
     
     if ($_.Exception.Response) {
         $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream())
         $responseBody = $reader.ReadToEnd()
         Write-Host "Response body: $responseBody" -ForegroundColor Gray
+        
+        # Provide specific guidance based on error
+        Write-Host ""
+        if ($statusCode -eq 401) {
+            Write-Host ">>> FIX: Your API key is INVALID or EXPIRED" -ForegroundColor Red
+            Write-Host "    1. Go to: https://openrouter.ai/settings/keys" -ForegroundColor Yellow
+            Write-Host "    2. Create a new API key" -ForegroundColor Yellow
+            Write-Host "    3. Update OPENROUTER_API_KEY in .env" -ForegroundColor Yellow
+        } elseif ($statusCode -eq 402) {
+            Write-Host ">>> FIX: Insufficient credits" -ForegroundColor Red
+            Write-Host "    Go to: https://openrouter.ai/settings/credits" -ForegroundColor Yellow
+            Write-Host "    Add at least $5-10 in credits" -ForegroundColor Yellow
+        }
     }
     Write-Host ""
 }
@@ -72,7 +105,7 @@ try {
 
 Write-Host "=== Summary ===" -ForegroundColor Cyan
 Write-Host "If Test 1 passed, the API key is working and OpenRouter is accessible." -ForegroundColor White
-Write-Host "If Test 1 failed, check:" -ForegroundColor White
-Write-Host "  1. API key is correct" -ForegroundColor Gray
-Write-Host "  2. You have credits on OpenRouter account" -ForegroundColor Gray
-Write-Host "  3. Network connection is working" -ForegroundColor Gray
+Write-Host "If Test 1 failed with 401, your API key is invalid - get a new one." -ForegroundColor White
+Write-Host "If Test 1 failed with 402, you need to add credits." -ForegroundColor White
+Write-Host ""
+Write-Host "OpenRouter Dashboard: https://openrouter.ai" -ForegroundColor Cyan
