@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Lock files (optional - you may want to keep these)
+# bun.lock
+# package-lock.json
+
+# IDE/Editor
+.cursor/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Test coverage
+coverage/
+
+# Docker
+*.local
+
+# Temporary files
+tmp/
+temp/
+
+# Database files
+.eliza/
+*.backup.*
+*.elizadb/
+*.elizadb.backup.*

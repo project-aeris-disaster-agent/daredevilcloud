@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@elizaos/plugin-openrouter": "^1.5.17"
+  },
+  "devDependencies": {
+    "@elizaos/cli": "^1.7.0"
+  }
+}
